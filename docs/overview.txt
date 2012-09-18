@@ -1,0 +1,2 @@
+The projects module is a simple project management module, which allows the 
+grouping of various other module elements.
