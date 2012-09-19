@@ -1,0 +1,26 @@
+#
+# Description
+# -----------
+# This table stores the users connected with a project.
+# 
+# Fields
+# ------
+# project_id:		The atdo element the user is attached to.
+# user_id:			The user following the atdo.
+# perms:			The bits to determine how the user is attached to the atdo.
+#					
+#					0x01 - following comments, notify via email
+#					0x02 - following notifications, notify via email
+#					0x04 - the project is assigned to the user
+#
+# date_added:		The UTC date and time the user subscribed to this thread.
+# last_updated:		The UTC date and time the status was last changed.
+#
+create table ciniki_project_users (
+	project_id int not null,
+	user_id varchar(50) not null,
+	perms tinyint unsigned not null,
+	date_added datetime not null,
+	last_updated datetime not null,
+	primary key (project_id, user_id)
+) ENGINE='InnoDB', COMMENT='v1.01';

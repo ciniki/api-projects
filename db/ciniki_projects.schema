@@ -1,0 +1,48 @@
+#
+# Description
+# -----------
+# This table store the information for projects.
+#
+# Fields
+# -------
+# id:				The id of the project.
+#
+# uuid:				The Universal Unique ID for the project, used for sync.
+#
+# business_id:		The business the project is attached to.
+#
+# category:			The category for the project.
+# 
+# status:			The current status of the project.
+#					
+#					0 - unknown
+#					1 - Open
+#					60 - Closed/Completed
+#
+# perm_flags:		0x01 - private to user who created and assigned users
+#					0x02 - 
+#					0x03 -
+#					0x04 -
+#
+# user_id:			The user who created the project.
+#
+# name:				The name of the project.
+#
+# date_added:       The UTC date and time the project was added.
+# last_updated:     The UTC date and time the project was last updated.
+#
+create table ciniki_projects (
+    id int not null auto_increment,
+	uuid char(36) not null,
+    business_id int not null,
+	category varchar(140) not null,
+    status tinyint unsigned not null,
+	perm_flags tinyint unsigned not null,
+    user_id int not null,
+    name varchar(140) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+	index (category),
+    index (business_id, status)
+) ENGINE='InnoDB', COMMENT='v1.01';

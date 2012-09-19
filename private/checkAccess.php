@@ -18,7 +18,7 @@ function ciniki_projects_checkAccess($ciniki, $business_id, $method) {
 	//
 	// Check if the business is active and the module is enabled
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'checkModuleAccess');
 	$rc = ciniki_businesses_checkModuleAccess($ciniki, $business_id, 'ciniki', 'projects');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
@@ -43,7 +43,7 @@ function ciniki_projects_checkAccess($ciniki, $business_id, $method) {
 	}
 
 	//
-	// Users who are an owner or employee of a business can see the business atdo
+	// Users who are an owner or employee of a business can see the business project
 	//
 	$strsql = "SELECT business_id, user_id FROM ciniki_business_users "
 		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
