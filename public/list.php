@@ -38,7 +38,7 @@ function ciniki_projects_list($ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectsList'); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectsList', 0); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   

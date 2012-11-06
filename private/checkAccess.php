@@ -10,11 +10,13 @@
 // ciniki:
 // business_id: 		The ID of the business the request is for.
 // method:				The method requested.
+// project_id:			The ID of the project to check the access for.  If specified as 0 then
+//						it is not checked.
 // 
 // Returns
 // =======
 //
-function ciniki_projects_checkAccess($ciniki, $business_id, $method) {
+function ciniki_projects_checkAccess($ciniki, $business_id, $method, $project_id) {
 	//
 	// Check if the business is active and the module is enabled
 	//
@@ -56,6 +58,25 @@ function ciniki_projects_checkAccess($ciniki, $business_id, $method) {
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}
+
+	//
+	// If the project_id is specified, check if the user has permission to view it
+	//
+	if( $project_id > 0 ) {
+		$strsql = "SELECT id "
+			. "FROM ciniki_projects "
+			. "WHERE project_id = '" . ciniki_core_dbQuote($ciniki, $project_id) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+			. "";
+		$prc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.projects', 'project');
+		if( $prc['stat'] != 'ok' ) {
+			return $prc;
+		}
+		if( !isset($prc['project']['id']) || $prc['project']['id'] != $project_id ) {
+			return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'832', 'msg'=>'Invalid project'));
+		}
+	}
+
 	//
 	// If the user has permission, return ok
 	//
