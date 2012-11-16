@@ -65,7 +65,7 @@ function ciniki_projects_checkAccess($ciniki, $business_id, $method, $project_id
 	if( $project_id > 0 ) {
 		$strsql = "SELECT id "
 			. "FROM ciniki_projects "
-			. "WHERE project_id = '" . ciniki_core_dbQuote($ciniki, $project_id) . "' "
+			. "WHERE id = '" . ciniki_core_dbQuote($ciniki, $project_id) . "' "
 			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
 			. "";
 		$prc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.projects', 'project');
