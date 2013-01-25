@@ -59,7 +59,7 @@ function ciniki_projects_list($ciniki) {
 		. "LEFT JOIN ciniki_project_users AS u1 ON (ciniki_projects.id = u1.project_id AND u1.user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "') "
 		. "LEFT JOIN ciniki_project_users AS u2 ON (ciniki_projects.id = u2.project_id && (u2.perms&0x04) = 4) "
 		. "LEFT JOIN ciniki_users AS u3 ON (u2.user_id = u3.id) "
-		. "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "WHERE ciniki_projects.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
 		. "";
 	if( isset($args['status']) ) {
 		switch($args['status']) {
