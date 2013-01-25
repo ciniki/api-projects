@@ -44,5 +44,6 @@ create table ciniki_projects (
     last_updated datetime not null,
     primary key (id),
 	index (category),
-    index (business_id, status)
-) ENGINE='InnoDB', COMMENT='v1.01';
+    index (business_id, status),
+	index uuid (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.02';

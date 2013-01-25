@@ -125,7 +125,7 @@ function ciniki_projects_add($ciniki) {
 	// Add the user who created the project, as a follower 
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'threadAddUserPerms');
-	$rc = ciniki_core_threadAddUserPerms($ciniki, 'ciniki.projects', 'ciniki_project_users', 'project', $project_id, $ciniki['session']['user']['id'], (0x01|0x04));
+	$rc = ciniki_core_threadAddUserPerms($ciniki, 'ciniki.projects', $args['business_id'], 'ciniki_project_users', 'project', $project_id, $ciniki['session']['user']['id'], (0x01|0x04));
 	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.projects');
 		return $rc;
@@ -138,7 +138,7 @@ function ciniki_projects_add($ciniki) {
 	//
 	if( isset($args['assigned']) && is_array($args['assigned']) ) {
 		foreach( $args['assigned'] as $user_id ) {
-			$rc = ciniki_core_threadAddUserPerms($ciniki, 'ciniki.projects', 'ciniki_project_users', 'project', $project_id, $user_id, (0x04));
+			$rc = ciniki_core_threadAddUserPerms($ciniki, 'ciniki.projects', $args['business_id'], 'ciniki_project_users', 'project', $project_id, $user_id, (0x04));
 			if( $rc['stat'] != 'ok' ) {
 				ciniki_core_dbTransactionRollback($ciniki, 'ciniki.projects');
 				return $rc;
