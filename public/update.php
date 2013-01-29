@@ -134,7 +134,9 @@ function ciniki_projects_update($ciniki) {
 		$to_be_removed = array_diff($task_users, $args['assigned']);
 		if( is_array($to_be_removed) ) {
 			foreach($to_be_removed as $user_id) {
-				$rc = ciniki_core_threadRemoveUserPerms($ciniki, 'ciniki.projects', 'ciniki_project_users', 'project', $args['project_id'], $user_id, 0x04);
+				$rc = ciniki_core_threadRemoveUserPerms($ciniki, 'ciniki.projects', 'user', 
+					$args['business_id'], 'ciniki_project_users', 'ciniki_project_history', 
+					'project', $args['project_id'], $user_id, 0x04);
 				if( $rc['stat'] != 'ok' ) {
 					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'829', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
 				}
@@ -143,7 +145,9 @@ function ciniki_projects_update($ciniki) {
 		$to_be_added = array_diff($args['assigned'], $task_users);
 		if( is_array($to_be_added) ) {
 			foreach($to_be_added as $user_id) {
-				$rc = ciniki_core_threadAddUserPerms($ciniki, 'ciniki.projects', $args['business_id'], 'ciniki_project_users', 'project', $args['project_id'], $user_id, (0x04));
+				$rc = ciniki_core_threadAddUserPerms($ciniki, 'ciniki.projects', 'user',
+					$args['business_id'], 'ciniki_project_users', 'ciniki_project_history',
+					'project', $args['project_id'], $user_id, (0x04));
 				if( $rc['stat'] != 'ok' ) {
 					return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'830', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
 				}
