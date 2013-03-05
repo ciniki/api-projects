@@ -28,19 +28,19 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_projects_update($ciniki) {
+function ciniki_projects_update(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-		'business_id'=>array('required'=>'yes', 'blank'=>'no', 'errmsg'=>'No business specified'), 
-        'project_id'=>array('required'=>'yes', 'blank'=>'no', 'errmsg'=>'No project specified'), 
-        'name'=>array('required'=>'no', 'blank'=>'no', 'errmsg'=>'No name specified'), 
-        'category'=>array('required'=>'no', 'blank'=>'no', 'errmsg'=>'No category specified'), 
-		'assigned'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'errmsg'=>'No assignments specified'),
-		'private'=>array('required'=>'no', 'blank'=>'yes', 'errmsg'=>'No private specified'),
-		'status'=>array('required'=>'no', 'blank'=>'yes', 'errmsg'=>'No status specified'),
+		'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'project_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Project'), 
+        'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'), 
+        'category'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Category'), 
+		'assigned'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Assigned'),
+		'private'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Private'),
+		'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -107,6 +107,8 @@ function ciniki_projects_update($ciniki) {
 		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'827', 'msg'=>'Unable to update task'));
 	}
 
+	$ciniki['syncqueue'][] = array('push'=>'ciniki.projects.project',
+		'args'=>array('id'=>$args['project_id']));
 
 	//
 	// Check if the assigned users has changed

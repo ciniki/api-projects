@@ -27,18 +27,18 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_projects_add($ciniki) {
+function ciniki_projects_add(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'errmsg'=>'No business specified'), 
-        'name'=>array('required'=>'yes', 'blank'=>'no', 'errmsg'=>'No name specified'), 
-        'category'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'errmsg'=>'No category specified'), 
-		'assigned'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'errmsg'=>'No assignments specified'),
-		'private'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'errmsg'=>'No private specified'),
-		'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'1', 'errmsg'=>'No status specified'),
+        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'), 
+        'category'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Category'), 
+		'assigned'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Assigned'),
+		'private'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Private'),
+		'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'1', 'name'=>'Status'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
@@ -70,6 +70,16 @@ function ciniki_projects_add($ciniki) {
 	}   
 
 	//
+	// Get a new UUID
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
+	$rc = ciniki_core_dbUUID($ciniki, 'ciniki.projects');
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$args['uuid'] = $rc['uuid'];
+
+	//
 	// Setup flags
 	//
 	$perm_flags = 0;
@@ -83,7 +93,7 @@ function ciniki_projects_add($ciniki) {
 	$strsql = "INSERT INTO ciniki_projects (uuid, business_id, category, status, perm_flags, user_id, "
 		. "name, "
 		. "date_added, last_updated) VALUES ("
-		. "UUID(), "
+		. "'" . ciniki_core_dbQuote($ciniki, $args['uuid']) . "', "
 		. "'" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "', "
 		. "'" . ciniki_core_dbQuote($ciniki, $args['category']) . "', "
 		. "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', "
@@ -108,6 +118,7 @@ function ciniki_projects_add($ciniki) {
 	//
 
 	$changelog_fields = array(
+		'uuid',
 		'category',
 		'status',
 		'perm_flags',
@@ -120,6 +131,12 @@ function ciniki_projects_add($ciniki) {
 				1, 'ciniki_projects', $project_id, $insert_name, $ciniki['request']['args'][$field]);
 		}
 	}
+
+	//
+	// Add the sync push before adding users to project
+	//
+	$ciniki['syncqueue'][] = array('push'=>'ciniki.projects.project',
+		'args'=>array('id'=>$project_id));
 
 	//
 	// Add the user who created the project, as a follower 

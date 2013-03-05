@@ -39,9 +39,9 @@ function ciniki_projects_get($ciniki) {
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'errmsg'=>'No business specified'), 
-        'project_id'=>array('required'=>'yes', 'blank'=>'no', 'errmsg'=>'No project specified'), 
-		'children'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'errmsg'=>'No children flag specified'),
+        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'project_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Project'), 
+		'children'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Children Flag'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
