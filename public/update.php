@@ -39,7 +39,8 @@ function ciniki_projects_update(&$ciniki) {
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'), 
         'category'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Category'), 
 		'assigned'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Assigned'),
-		'private'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Private'),
+//		'private'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Private'),
+		'perm_flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Permissions'),
 		'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -72,43 +73,14 @@ function ciniki_projects_update(&$ciniki) {
 	}   
 
 	//
-	// Add the order to the database
+	// Update the project
 	//
-	$strsql = "UPDATE ciniki_projects SET last_updated = UTC_TIMESTAMP()";
-
-	if( isset($args['private']) ) {
-		$strsql .= ', perm_flags=(perm_flags&~0x01)';
-	}
-
-	//
-	// Add all the fields to the change log
-	//
-	$changelog_fields = array(
-		'category',
-		'name',
-		'status',
-		);
-	foreach($changelog_fields as $field) {
-		if( isset($args[$field]) ) {
-			$strsql .= ", $field = '" . ciniki_core_dbQuote($ciniki, $args[$field]) . "' ";
-			$rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.projects', 'ciniki_project_history', $args['business_id'], 
-				2, 'ciniki_projects', $args['project_id'], $field, $args[$field]);
-		}
-	}
-	$strsql .= "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' ";
-	$rc = ciniki_core_dbUpdate($ciniki, $strsql, 'ciniki.projects');
-	if( $rc['stat'] != 'ok' ) { 
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+	$rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.projects.project', $args['project_id'], $args, 0x04);
+	if( $rc['stat'] != 'ok' ) {
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.projects');
 		return $rc;
 	}
-	if( !isset($rc['num_affected_rows']) || $rc['num_affected_rows'] != 1 ) {
-		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.projects');
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'827', 'msg'=>'Unable to update task'));
-	}
-
-	$ciniki['syncqueue'][] = array('push'=>'ciniki.projects.project',
-		'args'=>array('id'=>$args['project_id']));
 
 	//
 	// Check if the assigned users has changed

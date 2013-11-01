@@ -37,7 +37,8 @@ function ciniki_projects_add(&$ciniki) {
         'name'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Name'), 
         'category'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'', 'name'=>'Category'), 
 		'assigned'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Assigned'),
-		'private'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Private'),
+//		'private'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'validlist'=>array('no', 'yes'), 'name'=>'Private'),
+		'perm_flags'=>array('required'=>'no', 'blank'=>'no', 'default'=>'0', 'name'=>'Permissions'),
 		'status'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'1', 'name'=>'Status'),
         )); 
     if( $rc['stat'] != 'ok' ) { 
@@ -69,74 +70,23 @@ function ciniki_projects_add(&$ciniki) {
 		return $rc;
 	}   
 
+//	if( $args['private'] == 'yes' ) {
+//		$args['perm_flags'] = 0x01;
+//	} else {
+//		$args['perm_flags'] = 0;
+//	}
+	$args['user_id'] = $ciniki['session']['user']['id'];
+
 	//
-	// Get a new UUID
+	// Add the project
 	//
-	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbUUID');
-	$rc = ciniki_core_dbUUID($ciniki, 'ciniki.projects');
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+	$rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.projects.project', $args, 0x04);
 	if( $rc['stat'] != 'ok' ) {
-		return $rc;
-	}
-	$args['uuid'] = $rc['uuid'];
-
-	//
-	// Setup flags
-	//
-	$perm_flags = 0;
-	// Make messages private, always
-	if( isset($args['private']) && $args['private'] == 'yes' ) {
-		$perm_flags += 1;
-	}
-	//
-	// Add the project to the database
-	//
-	$strsql = "INSERT INTO ciniki_projects (uuid, business_id, category, status, perm_flags, user_id, "
-		. "name, "
-		. "date_added, last_updated) VALUES ("
-		. "'" . ciniki_core_dbQuote($ciniki, $args['uuid']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['category']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['status']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $perm_flags) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "', "
-		. "'" . ciniki_core_dbQuote($ciniki, $args['name']) . "', "
-		. "UTC_TIMESTAMP(), UTC_TIMESTAMP())"
-		. "";
-	$rc = ciniki_core_dbInsert($ciniki, $strsql, 'ciniki.projects');
-	if( $rc['stat'] != 'ok' ) { 
 		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.projects');
 		return $rc;
 	}
-	if( !isset($rc['insert_id']) || $rc['insert_id'] < 1 ) {
-		ciniki_core_dbTransactionRollback($ciniki, 'ciniki.projects');
-		return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'822', 'msg'=>'Unable to add item'));
-	}
-	$project_id = $rc['insert_id'];
-
-	//
-	// Add all the fields to the change log
-	//
-
-	$changelog_fields = array(
-		'uuid',
-		'category',
-		'status',
-		'perm_flags',
-		'name',
-		);
-	foreach($changelog_fields as $field) {
-		$insert_name = $field;
-		if( isset($ciniki['request']['args'][$field]) && $ciniki['request']['args'][$field] != '' ) {
-			$rc = ciniki_core_dbAddModuleHistory($ciniki, 'ciniki.project', 'ciniki_project_history', $args['business_id'], 
-				1, 'ciniki_projects', $project_id, $insert_name, $ciniki['request']['args'][$field]);
-		}
-	}
-
-	//
-	// Add the sync push before adding users to project
-	//
-	$ciniki['syncqueue'][] = array('push'=>'ciniki.projects.project',
-		'args'=>array('id'=>$project_id));
+	$project_id = $rc['id'];
 
 	//
 	// Add the user who created the project, as a follower 

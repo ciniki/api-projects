@@ -73,6 +73,7 @@ function ciniki_projects_get($ciniki) {
 	//
 	$strsql = "SELECT ciniki_projects.id, ciniki_projects.name, user_id, "
 		. "IF((ciniki_projects.perm_flags&0x01)=1, 'yes', 'no') AS private, "
+		. "ciniki_projects.perm_flags, "
 		. "ciniki_projects.status, ciniki_projects.category, "
 		. "DATE_FORMAT(CONVERT_TZ(ciniki_projects.date_added, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), '" . ciniki_core_dbQuote($ciniki, $datetime_format) . "') AS date_added, "
 		. "DATE_FORMAT(CONVERT_TZ(ciniki_projects.last_updated, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), '" . ciniki_core_dbQuote($ciniki, $datetime_format) . "') AS last_updated "
