@@ -27,7 +27,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_projects_add(&$ciniki) {
+function ciniki_projects_projectAdd(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -51,7 +51,7 @@ function ciniki_projects_add(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.add', 0); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectAdd'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   

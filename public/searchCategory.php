@@ -35,10 +35,20 @@ function ciniki_projects_searchCategory($ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.searchCategory', 0); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.searchCategory'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
+
+	//
+	// Load the status maps for the text description of each status
+	//
+	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'projectStatusMaps');
+	$rc = ciniki_projects_projectStatusMaps($ciniki);
+	if( $rc['stat'] != 'ok' ) {
+		return $rc;
+	}
+	$status_maps = $rc['maps'];
 
 	//
 	// Get the number of faqs in each status for the business, 
@@ -47,7 +57,7 @@ function ciniki_projects_searchCategory($ciniki) {
 	$strsql = "SELECT category AS name "
 		. "FROM ciniki_projects "
 		. "WHERE ciniki_projects.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-		. "AND ciniki_projects.status = 1 "
+		. "AND ciniki_projects.status < 60 "
 		. "AND (category LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
 			. "AND category <> '' "
 			. ") "
@@ -61,7 +71,8 @@ function ciniki_projects_searchCategory($ciniki) {
 	}
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
 	$rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.projects', array(
-		array('container'=>'categories', 'fname'=>'name', 'name'=>'category', 'fields'=>array('name')),
+		array('container'=>'categories', 'fname'=>'name', 'name'=>'category', 
+			'fields'=>array('name')),
 		));
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;

@@ -28,7 +28,7 @@ function ciniki_projects_dbIntegrityCheck($ciniki) {
 	// Check access to business_id as owner, or sys admin
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-	$rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.dbIntegrityCheck', 0);
+	$rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.dbIntegrityCheck');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

@@ -28,7 +28,7 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_projects_update(&$ciniki) {
+function ciniki_projects_projectUpdate(&$ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -53,7 +53,7 @@ function ciniki_projects_update(&$ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.update', $args['project_id']); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -95,6 +95,7 @@ function ciniki_projects_update(&$ciniki) {
 		$strsql = "SELECT user_id "
 			. "FROM ciniki_project_users "
 			. "WHERE project_id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
+			. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
 			. "AND (perms&0x04) = 4 "
 			. "";
 		$rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.projects', 'users', 'user_id');

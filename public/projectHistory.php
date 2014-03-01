@@ -15,7 +15,7 @@
 // Returns
 // -------
 //
-function ciniki_projects_getHistory($ciniki) {
+function ciniki_projects_projectHistory($ciniki) {
 	//
 	// Find all the required and optional arguments
 	//
@@ -34,7 +34,7 @@ function ciniki_projects_getHistory($ciniki) {
 	// Check access to business_id as owner, or sys admin
 	//
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-	$rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.getHistory', $args['project_id']);
+	$rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectHistory');
 	if( $rc['stat'] != 'ok' ) {
 		return $rc;
 	}

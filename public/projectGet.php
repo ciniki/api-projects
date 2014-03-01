@@ -33,7 +33,7 @@
 //		</files>
 // </project>
 //
-function ciniki_projects_get($ciniki) {
+function ciniki_projects_projectGet($ciniki) {
     //  
     // Find all the required and optional arguments
     //  
@@ -53,7 +53,7 @@ function ciniki_projects_get($ciniki) {
     // check permission to run this function for this business
     //  
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.get', $args['project_id']); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -103,7 +103,9 @@ function ciniki_projects_get($ciniki) {
 	//
 	$strsql = "SELECT project_id, user_id, perms "
 		. "FROM ciniki_project_users "
-		. "WHERE project_id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' ";
+		. "WHERE project_id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
+		. "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+		. "";
 	ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbRspQueryPlusUserIDs');
 	$rc = ciniki_core_dbRspQueryPlusUserIDs($ciniki, $strsql, 'ciniki.projects', 'users', 'user', array('stat'=>'ok', 'users'=>array(), 'user_ids'=>array()));
 	if( $rc['stat'] != 'ok' ) {

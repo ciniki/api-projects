@@ -14,6 +14,7 @@ function ciniki_projects_main() {
 	this.statuses = {'1':'Open', '60':'Completed'};
 	this.symbolpriorities = {'10':'Q', '30':'W', '50':'E'};	// also stored in core_menu.js
 	this.permFlags = {'1':{'name':'Private'}};
+	this.statusOptions = {'10':'Open', '30':'Future', '40':'Dormant', '50':'Completed', '60':'Deleted'};
 
 	this.init = function() {
 
@@ -44,6 +45,7 @@ function ciniki_projects_main() {
 				}
 				return d.project.name;
 			}
+			if( j == 1 ) { return d.project.status_text; }
 			return '';
 		};
 		this.projects.liveSearchResultRowFn = function(s, f, i, j, d) {
@@ -59,19 +61,20 @@ function ciniki_projects_main() {
 				}
 				return d.project.name;
 			}
+			if( j == 1 ) { return d.project.status_text; }
 		};
 		this.projects.rowFn = function(s, i, d) {
-			return 'M.ciniki_projects_main.showProject(\'M.ciniki_projects_main.showProjects(null, null);\', \'' + d.project.id + '\');'; 
+			return 'M.ciniki_projects_main.showProject(\'M.ciniki_projects_main.showProjects();\', \'' + d.project.id + '\');'; 
 		};
 		this.projects.sectionData = function(s) { 
 			return this.data[s];
 		};
-		this.projects.listValue = function(s, i, d) { 
-			if( d.count != null ) {
-				return d.label + ' <span class="count">' + d.count + '</span>'; 
-			}
-			return d.label;
-		};
+//		this.projects.listValue = function(s, i, d) { 
+//			if( d.count != null ) {
+//				return d.label + ' <span class="count">' + d.count + '</span>'; 
+//			}
+//			return d.label;
+//		};
 
 		this.projects.addButton('add', 'Add', 'M.ciniki_projects_main.showEdit(\'M.ciniki_projects_main.showProjects();\',0);');
 		this.projects.addClose('Back');
@@ -84,16 +87,18 @@ function ciniki_projects_main() {
 			'mc', 'medium', 'sectioned', 'ciniki.projects.main.edit');
 		this.edit.project_id = 0;
 		this.edit.data = null;
-		this.edit.default_data = {};
+		this.edit.default_data = {'status':'10'};
 		this.edit.sections = {
 			'info':{'label':'', 'type':'simpleform', 'fields':{
-				'name':{'label':'Name', 'type':'text'},
-				'category':{'label':'Category', 'type':'text', 'livesearch':'yes', 'livesearchempty':'yes'},
-				'assigned':{'label':'Assigned', 'type':'multiselect', 'history':'no', 'none':'yes', 'options':M.curBusiness.employees},
-				'perm_flags':{'label':'Options', 'type':'flags', 'history':'no', 'none':'yes', 'flags':this.permFlags},
+				'category':{'label':'Project Category', 'type':'text', 'livesearch':'yes', 'livesearchempty':'yes'},
+				'name':{'label':'Project Name', 'type':'text'},
+				'assigned':{'label':'Assigned', 'type':'multiselect', 'none':'yes', 'options':M.curBusiness.employees},
+				'perm_flags':{'label':'Options', 'type':'flags', 'none':'yes', 'flags':this.permFlags},
+				'status':{'label':'Status', 'type':'toggle', 'none':'no', 'toggles':this.statusOptions},
 			}},
 			'_buttons':{'label':'', 'buttons':{
 				'save':{'label':'Save', 'fn':'M.ciniki_projects_main.saveProject();'},
+				'delete':{'label':'Delete', 'fn':'M.ciniki_projects_main.deleteProject();'},
 				}},
 			};
 		this.edit.sectionData = function(s) {
@@ -141,8 +146,10 @@ function ciniki_projects_main() {
 		this.project.project_id = 0;
 		this.project.sections = {
 			'info':{'label':'', 'list':{
-				'name':{'label':'Name', 'type':'text'},
+				'category':{'label':'Category'},
+				'name':{'label':'Name'},
 				'assigned':{'label':'Assigned'},
+				'status_text':{'label':'Status'},
 				}},
 			'appointments':{'label':'Appointments', 'type':'simplegrid', 'num_cols':'1', 
 				'headerValues':null,
@@ -192,6 +199,7 @@ function ciniki_projects_main() {
 					}
 					return str;
 				}
+				if( i == 'status_text' ) { return M.ciniki_projects_main.statusOptions[this.data['status']]; }
 				return this.data[i];
 			}
 		};
@@ -318,33 +326,44 @@ function ciniki_projects_main() {
 		if( args.project_id != null && args.project_id != '' ) {
 			this.showProject(cb, args.project_id);
 		} else {
-			this.showProjects(cb, null);
+			this.showProjects(cb, 10);
 		}
 	}
 
-	this.showProjects = function(cb) {
+	this.showProjects = function(cb, status) {
 		// Get the projects for the user and business
 		this.projects.data = {};
-		var rsp = M.api.getJSONCb('ciniki.projects.list', 
-			{'business_id':M.curBusinessID, 'status':'open'}, function(rsp) {
+		if( status != null ) { this.projects.status = status; }
+		var p = M.ciniki_projects_main.projects;
+		p.sections = {
+			'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':2, 'hint':'search', 
+				'noData':'No projects found',
+				'headerValues':null,
+				'cellClasses':[''],
+				},
+			'status_select':{'label':'', 'visible':'yes', 'type':'paneltabs', 'selected':this.projects.status, 'tabs':{
+				'0':{'label':'All', 'fn':'M.ciniki_projects_main.showProjects(null,0);'},
+				'10':{'label':'Open', 'fn':'M.ciniki_projects_main.showProjects(null,10);'},
+				'30':{'label':'Future', 'fn':'M.ciniki_projects_main.showProjects(null,30);'},
+				'40':{'label':'Dormant', 'fn':'M.ciniki_projects_main.showProjects(null,40);'},
+				'50':{'label':'Completed', 'fn':'M.ciniki_projects_main.showProjects(null,50);'},
+				'60':{'label':'Deleted', 'fn':'M.ciniki_projects_main.showProjects(null,60);'},
+				}},
+			};
+		var rsp = M.api.getJSONCb('ciniki.projects.projectList', 
+			{'business_id':M.curBusinessID, 'status':this.projects.status}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
 					return false;
 				}
-				var p = M.ciniki_projects_main.projects;
-				p.sections = {
-					'search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':1, 'hint':'search', 
-						'noData':'No projects found',
-						'headerValues':null,
-						'cellClasses':[''],
-						},
-					};
 				for(i in rsp.categories) {
 					p.data[rsp.categories[i].category.name] = rsp.categories[i].category.projects;
 					p.sections[rsp.categories[i].category.name] = {'label':rsp.categories[i].category.name,
-						'num_cols':1, 'type':'simplegrid', 'headerValues':null,
-						'cellClasses':[''],
+						'num_cols':2, 'type':'simplegrid', 'headerValues':null,
+						'cellClasses':['', ''],
 						'noData':'No projects found',
+						'addTxt':'Add',
+						'addFn':'M.ciniki_projects_main.showEdit(\'M.ciniki_projects_main.showProjects();\',0,\'' + escape(rsp.categories[i].category.name) + '\');',
 						};
 				}
 
@@ -359,7 +378,7 @@ function ciniki_projects_main() {
 			this.project.project_id = pid;
 		}
 		this.project.data = {};
-		var rsp = M.api.getJSONCb('ciniki.projects.get', 
+		var rsp = M.api.getJSONCb('ciniki.projects.projectGet', 
 			{'business_id':M.curBusinessID, 'project_id':this.project.project_id, 'children':'yes'}, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
@@ -372,13 +391,11 @@ function ciniki_projects_main() {
 			});
 	};
 
-	this.showEdit = function(cb, pid) {
+	this.showEdit = function(cb, pid, cat) {
 		this.edit.reset();
-		if( pid != null ) {
-			this.edit.project_id = pid;
-		}
+		if( pid != null ) { this.edit.project_id = pid; }
 		if( this.edit.project_id > 0 ) {
-			var rsp = M.api.getJSONCb('ciniki.projects.get', 
+			var rsp = M.api.getJSONCb('ciniki.projects.projectGet', 
 				{'business_id':M.curBusinessID, 'project_id':this.edit.project_id, 'children':'no'}, function(rsp) {
 					if( rsp.stat != 'ok' ) {
 						M.api.err(rsp);
@@ -392,6 +409,7 @@ function ciniki_projects_main() {
 		} else {
 			this.edit.reset();
 			this.edit.data = this.edit.default_data;
+			if( cat != null ) { this.edit.data.category = unescape(cat); }
 			this.edit.refresh();
 			this.edit.show(cb);
 		}
@@ -401,7 +419,7 @@ function ciniki_projects_main() {
 		if( this.edit.project_id > 0 ) {
 			var c = this.edit.serializeForm('no');
 			if( c != '' ) {
-				var rsp = M.api.postJSONCb('ciniki.projects.update', 
+				var rsp = M.api.postJSONCb('ciniki.projects.projectUpdate', 
 					{'business_id':M.curBusinessID, 'project_id':this.edit.project_id}, c, function(rsp) {
 						if( rsp.stat != 'ok' ) {
 							M.api.err(rsp);
@@ -414,7 +432,7 @@ function ciniki_projects_main() {
 			}
 		} else {
 			var c = this.edit.serializeForm('yes');
-			var rsp = M.api.postJSONCb('ciniki.projects.add', 
+			var rsp = M.api.postJSONCb('ciniki.projects.projectAdd', 
 				{'business_id':M.curBusinessID}, c, function(rsp) {
 				if( rsp.stat != 'ok' ) {
 					M.api.err(rsp);
@@ -422,6 +440,20 @@ function ciniki_projects_main() {
 				} 
 				M.ciniki_projects_main.edit.close();
 			});
+		}
+	};
+
+	this.deleteProject = function() {
+		if( confirm("Are you sure you want to remove the project '" + this.edit.data.name + "'?") ) {
+			var rsp = M.api.getJSONCb('ciniki.projects.projectDelete', 
+				{'business_id':M.curBusinessID, 
+				'project_id':M.ciniki_projects_main.edit.project_id}, function(rsp) {
+					if( rsp.stat != 'ok' ) {
+						M.api.err(rsp);
+						return false;
+					}
+					M.ciniki_projects_main.project.close();
+				});
 		}
 	};
 }
