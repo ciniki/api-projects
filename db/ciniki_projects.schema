@@ -5,48 +5,48 @@
 #
 # Fields
 # -------
-# id:				The id of the project.
+# id:               The id of the project.
 #
-# uuid:				The Universal Unique ID for the project, used for sync.
+# uuid:             The Universal Unique ID for the project, used for sync.
 #
-# business_id:		The business the project is attached to.
+# business_id:      The business the project is attached to.
 #
-# category:			The category for the project.
+# category:         The category for the project.
 # 
-# status:			The current status of the project.
-#					
-#					0 - unknown
-#					10 - Open
-#					30 - Future
-#					40 - Dormant
-#					50 - Completed
-#					60 - Deleted
+# status:           The current status of the project.
+#                   
+#                   0 - unknown
+#                   10 - Open
+#                   30 - Future
+#                   40 - Dormant
+#                   50 - Completed
+#                   60 - Deleted
 #
-# perm_flags:		0x01 - private to user who created and assigned users
-#					0x02 - 
-#					0x03 -
-#					0x04 -
+# perm_flags:       0x01 - private to user who created and assigned users
+#                   0x02 - 
+#                   0x03 -
+#                   0x04 -
 #
-# user_id:			The user who created the project.
+# user_id:          The user who created the project.
 #
-# name:				The name of the project.
+# name:             The name of the project.
 #
 # date_added:       The UTC date and time the project was added.
 # last_updated:     The UTC date and time the project was last updated.
 #
 create table ciniki_projects (
     id int not null auto_increment,
-	uuid char(36) not null,
+    uuid char(36) not null,
     business_id int not null,
-	category varchar(140) not null,
+    category varchar(140) not null,
     status tinyint unsigned not null,
-	perm_flags tinyint unsigned not null,
+    perm_flags tinyint unsigned not null,
     user_id int not null,
     name varchar(140) not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
-	index (category),
+    index (category),
     index (business_id, status),
-	index uuid (business_id, uuid, last_updated)
+    index uuid (business_id, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.02';
