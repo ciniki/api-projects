@@ -30,7 +30,7 @@ function ciniki_projects_checkAccess($ciniki, $business_id, $method) {
     }
 
     if( !isset($rc['ruleset']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'820', 'msg'=>'No permissions granted'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.1', 'msg'=>'No permissions granted'));
     }
 
     //
@@ -68,6 +68,6 @@ function ciniki_projects_checkAccess($ciniki, $business_id, $method) {
     //
     // By default, fail
     //
-    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'821', 'msg'=>'Access denied.'));
+    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.2', 'msg'=>'Access denied.'));
 }
 ?>

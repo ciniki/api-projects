@@ -88,7 +88,7 @@ function ciniki_projects_projectGet($ciniki) {
         return $rc;
     }
     if( !isset($rc['project']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'823', 'msg'=>'Unable to find item'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.3', 'msg'=>'Unable to find item'));
     }
     $project = $rc['project'];
 
@@ -109,7 +109,7 @@ function ciniki_projects_projectGet($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbRspQueryPlusUserIDs');
     $rc = ciniki_core_dbRspQueryPlusUserIDs($ciniki, $strsql, 'ciniki.projects', 'users', 'user', array('stat'=>'ok', 'users'=>array(), 'user_ids'=>array()));
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'824', 'msg'=>'Unable to load item information', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.4', 'msg'=>'Unable to load item information', 'err'=>$rc['err']));
     }
     $project_users = $rc['users'];
     $user_ids = array_merge($user_ids, $rc['user_ids']);
@@ -120,10 +120,10 @@ function ciniki_projects_projectGet($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'userListByID');
     $rc = ciniki_users_userListByID($ciniki, 'users', $user_ids, 'display_name');
     if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'825', 'msg'=>'Unable to load item information', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.5', 'msg'=>'Unable to load item information', 'err'=>$rc['err']));
     }
     if( !isset($rc['users']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'826', 'msg'=>'Unable to load item information', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.6', 'msg'=>'Unable to load item information', 'err'=>$rc['err']));
     }
     $users = $rc['users'];
 

@@ -100,7 +100,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
             . "";
         $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.projects', 'users', 'user_id');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'828', 'msg'=>'Unable to load task information', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.7', 'msg'=>'Unable to load task information', 'err'=>$rc['err']));
         }
         $task_users = $rc['users'];
         // 
@@ -113,7 +113,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
                     $args['business_id'], 'ciniki_project_users', 'ciniki_project_history', 
                     'project', $args['project_id'], $user_id, 0x04);
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'829', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.8', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
                 }
             }
         }
@@ -124,7 +124,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
                     $args['business_id'], 'ciniki_project_users', 'ciniki_project_history',
                     'project', $args['project_id'], $user_id, (0x04));
                 if( $rc['stat'] != 'ok' ) {
-                    return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'830', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.9', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
                 }
             }
         }
