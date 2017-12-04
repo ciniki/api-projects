@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to search the projects.
+// tnid:     The ID of the tenant to search the projects.
 // start_needle:    The search string to look for in the project categories.
 // limit:           The maximum number of categories to return.
 // 
@@ -21,7 +21,7 @@ function ciniki_projects_searchCategory($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'start_needle'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Search String'), 
         'limit'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Limit'), 
         )); 
@@ -32,10 +32,10 @@ function ciniki_projects_searchCategory($ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.searchCategory'); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['tnid'], 'ciniki.projects.searchCategory'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -51,12 +51,12 @@ function ciniki_projects_searchCategory($ciniki) {
     $status_maps = $rc['maps'];
 
     //
-    // Get the number of faqs in each status for the business, 
+    // Get the number of faqs in each status for the tenant, 
     // if no rows found, then return empty array
     //
     $strsql = "SELECT category AS name "
         . "FROM ciniki_projects "
-        . "WHERE ciniki_projects.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_projects.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_projects.status < 60 "
         . "AND (category LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "AND category <> '' "

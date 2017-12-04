@@ -7,12 +7,12 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:     The ID of the business to get projects for.
+// tnid:     The ID of the tenant to get projects for.
 //
 // Returns
 // -------
 //
-function ciniki_projects_hooks_uiSettings($ciniki, $business_id, $args) {
+function ciniki_projects_hooks_uiSettings($ciniki, $tnid, $args) {
 
     //
     // Setup the default response
@@ -22,7 +22,7 @@ function ciniki_projects_hooks_uiSettings($ciniki, $business_id, $args) {
     //
     // Check permissions for what menu items should be available
     //
-    if( isset($ciniki['business']['modules']['ciniki.projects'])
+    if( isset($ciniki['tenant']['modules']['ciniki.projects'])
         && (isset($args['permissions']['owners'])
             || isset($args['permissions']['employees'])
             || isset($args['permissions']['resellers'])

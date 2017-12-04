@@ -29,7 +29,7 @@ function ciniki_projects_main() {
 //      this.projects.noData = function() { return 'No projects found'; }
         // Live Search functions
         this.projects.liveSearchCb = function(s, i, v) {
-            M.api.getJSONBgCb('ciniki.projects.searchNames', {'business_id':M.curBusinessID, 'start_needle':v, 'limit':'15'},
+            M.api.getJSONBgCb('ciniki.projects.searchNames', {'tnid':M.curTenantID, 'start_needle':v, 'limit':'15'},
                 function(rsp) {
                     M.ciniki_projects_main.projects.liveSearchShow(s, null, M.gE(M.ciniki_projects_main.projects.panelUID + '_' + s), rsp.projects);
                 });
@@ -92,7 +92,7 @@ function ciniki_projects_main() {
             'info':{'label':'', 'type':'simpleform', 'fields':{
                 'category':{'label':'Project Category', 'type':'text', 'livesearch':'yes', 'livesearchempty':'yes'},
                 'name':{'label':'Project Name', 'type':'text'},
-                'assigned':{'label':'Assigned', 'type':'multiselect', 'none':'yes', 'options':M.curBusiness.employees},
+                'assigned':{'label':'Assigned', 'type':'multiselect', 'none':'yes', 'options':M.curTenant.employees},
                 'perm_flags':{'label':'Options', 'type':'flags', 'none':'yes', 'flags':this.permFlags},
                 'status':{'label':'Status', 'type':'toggle', 'none':'no', 'toggles':this.statusOptions},
             }},
@@ -110,7 +110,7 @@ function ciniki_projects_main() {
         };
         this.edit.liveSearchCb = function(s, i, value) {
             if( i == 'category' ) {
-                var rsp = M.api.getJSONBgCb('ciniki.projects.searchCategory', {'business_id':M.curBusinessID, 'start_needle':value, 'limit':15},
+                var rsp = M.api.getJSONBgCb('ciniki.projects.searchCategory', {'tnid':M.curTenantID, 'start_needle':value, 'limit':15},
                     function(rsp) {
                         M.ciniki_projects_main.edit.liveSearchShow(s, i, M.gE(M.ciniki_projects_main.edit.panelUID + '_' + i), rsp.categories);
                     });
@@ -130,7 +130,7 @@ function ciniki_projects_main() {
             this.removeLiveSearch(s, 'category');
         };
         this.edit.fieldHistoryArgs = function(s, i) {
-            return {'method':'ciniki.projects.getHistory', 'args':{'business_id':M.curBusinessID, 
+            return {'method':'ciniki.projects.getHistory', 'args':{'tnid':M.curTenantID, 
                 'project_id':this.project_id, 'field':i}};
         }
         this.edit.addButton('save', 'Save', 'M.ciniki_projects_main.saveProject();');
@@ -189,11 +189,11 @@ function ciniki_projects_main() {
                     var str = '';
                     var users = this.data.assigned.split(/,/);
                     for(i in users) {
-                        if( M.curBusiness.employees[users[i]] != null ) {
+                        if( M.curTenant.employees[users[i]] != null ) {
                             if( str == '' ) {
-                                str = M.curBusiness.employees[users[i]];
+                                str = M.curTenant.employees[users[i]];
                             } else {
-                                str += ', ' + M.curBusiness.employees[users[i]];
+                                str += ', ' + M.curTenant.employees[users[i]];
                             }
                         }
                     }
@@ -258,8 +258,8 @@ function ciniki_projects_main() {
         this.project.rowStyle = function(s, i, d) {
             if( s == 'tasks' ) {
                 if( d != null && d.task != null ) {
-                    if( d.task.status != 'closed' ) { return 'background: ' + M.curBusiness.atdo.settings['tasks.priority.' + d.task.priority]; }
-                    else { return 'background: ' + M.curBusiness.atdo.settings['tasks.status.60']; }
+                    if( d.task.status != 'closed' ) { return 'background: ' + M.curTenant.atdo.settings['tasks.priority.' + d.task.priority]; }
+                    else { return 'background: ' + M.curTenant.atdo.settings['tasks.status.60']; }
                 }
             }
             return '';
@@ -296,9 +296,9 @@ function ciniki_projects_main() {
     //
     this.start = function(cb, appPrefix, aG) {
         //
-        // Reset all employee lists, must be done when switching businesses
+        // Reset all employee lists, must be done when switching tenants
         //
-        this.edit.sections.info.fields.assigned.options = M.curBusiness.employees;
+        this.edit.sections.info.fields.assigned.options = M.curTenant.employees;
 
         args = {};
         if( aG != null ) {
@@ -315,7 +315,7 @@ function ciniki_projects_main() {
             return false;
         } 
 
-        if( M.curBusiness.modules['ciniki.filedepot'] != null ) {
+        if( M.curTenant.modules['ciniki.filedepot'] != null ) {
             M.ciniki_projects_main.project.sections.files.visible = 'yes';
         } else {
             M.ciniki_projects_main.project.sections.files.visible = 'no';
@@ -331,7 +331,7 @@ function ciniki_projects_main() {
     }
 
     this.showProjects = function(cb, status) {
-        // Get the projects for the user and business
+        // Get the projects for the user and tenant
         this.projects.data = {};
         if( status != null ) { this.projects.status = status; }
         var p = M.ciniki_projects_main.projects;
@@ -351,7 +351,7 @@ function ciniki_projects_main() {
                 }},
             };
         var rsp = M.api.getJSONCb('ciniki.projects.projectList', 
-            {'business_id':M.curBusinessID, 'status':this.projects.status}, function(rsp) {
+            {'tnid':M.curTenantID, 'status':this.projects.status}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -379,7 +379,7 @@ function ciniki_projects_main() {
         }
         this.project.data = {};
         var rsp = M.api.getJSONCb('ciniki.projects.projectGet', 
-            {'business_id':M.curBusinessID, 'project_id':this.project.project_id, 'children':'yes'}, function(rsp) {
+            {'tnid':M.curTenantID, 'project_id':this.project.project_id, 'children':'yes'}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -396,7 +396,7 @@ function ciniki_projects_main() {
         if( pid != null ) { this.edit.project_id = pid; }
         if( this.edit.project_id > 0 ) {
             var rsp = M.api.getJSONCb('ciniki.projects.projectGet', 
-                {'business_id':M.curBusinessID, 'project_id':this.edit.project_id, 'children':'no'}, function(rsp) {
+                {'tnid':M.curTenantID, 'project_id':this.edit.project_id, 'children':'no'}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -420,7 +420,7 @@ function ciniki_projects_main() {
             var c = this.edit.serializeForm('no');
             if( c != '' ) {
                 var rsp = M.api.postJSONCb('ciniki.projects.projectUpdate', 
-                    {'business_id':M.curBusinessID, 'project_id':this.edit.project_id}, c, function(rsp) {
+                    {'tnid':M.curTenantID, 'project_id':this.edit.project_id}, c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
                             M.api.err(rsp);
                             return false;
@@ -433,7 +433,7 @@ function ciniki_projects_main() {
         } else {
             var c = this.edit.serializeForm('yes');
             var rsp = M.api.postJSONCb('ciniki.projects.projectAdd', 
-                {'business_id':M.curBusinessID}, c, function(rsp) {
+                {'tnid':M.curTenantID}, c, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
@@ -446,7 +446,7 @@ function ciniki_projects_main() {
     this.deleteProject = function() {
         if( confirm("Are you sure you want to remove the project '" + this.edit.data.name + "'?") ) {
             var rsp = M.api.getJSONCb('ciniki.projects.projectDelete', 
-                {'business_id':M.curBusinessID, 
+                {'tnid':M.curTenantID, 
                 'project_id':M.ciniki_projects_main.edit.project_id}, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);

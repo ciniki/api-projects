@@ -9,7 +9,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to update the project for.
+// tnid:     The ID of the tenant to update the project for.
 // project_id:      The ID of the project to update.
 // name:            (optional) The new name for the project.
 // category:        (optional) The new category for the project.
@@ -34,7 +34,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'project_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Project'), 
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'), 
         'category'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Category'), 
@@ -50,10 +50,10 @@ function ciniki_projects_projectUpdate(&$ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectUpdate'); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['tnid'], 'ciniki.projects.projectUpdate'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -76,7 +76,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
     // Update the project
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-    $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.projects.project', $args['project_id'], $args, 0x04);
+    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.projects.project', $args['project_id'], $args, 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.projects');
         return $rc;
@@ -95,7 +95,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
         $strsql = "SELECT user_id "
             . "FROM ciniki_project_users "
             . "WHERE project_id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
             . "AND (perms&0x04) = 4 "
             . "";
         $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.projects', 'users', 'user_id');
@@ -110,7 +110,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
         if( is_array($to_be_removed) ) {
             foreach($to_be_removed as $user_id) {
                 $rc = ciniki_core_threadRemoveUserPerms($ciniki, 'ciniki.projects', 'user', 
-                    $args['business_id'], 'ciniki_project_users', 'ciniki_project_history', 
+                    $args['tnid'], 'ciniki_project_users', 'ciniki_project_history', 
                     'project', $args['project_id'], $user_id, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.8', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
@@ -121,7 +121,7 @@ function ciniki_projects_projectUpdate(&$ciniki) {
         if( is_array($to_be_added) ) {
             foreach($to_be_added as $user_id) {
                 $rc = ciniki_core_threadAddUserPerms($ciniki, 'ciniki.projects', 'user',
-                    $args['business_id'], 'ciniki_project_users', 'ciniki_project_history',
+                    $args['tnid'], 'ciniki_project_users', 'ciniki_project_history',
                     'project', $args['project_id'], $user_id, (0x04));
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.projects.9', 'msg'=>'Unable to update task information', 'err'=>$rc['err']));
@@ -139,11 +139,11 @@ function ciniki_projects_projectUpdate(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'projects');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'projects');
 
     return array('stat'=>'ok');
 }

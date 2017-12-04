@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to get the projects for.
+// tnid:     The ID of the tenant to get the projects for.
 // status:          Return only projects in this status.
 // limit:           The maximum number of projects to return.
 // 
@@ -24,7 +24,7 @@ function ciniki_projects_projectList($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'status'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Status'), 
         'limit'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Limit'), 
         )); 
@@ -35,10 +35,10 @@ function ciniki_projects_projectList($ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectList'); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['tnid'], 'ciniki.projects.projectList'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -69,7 +69,7 @@ function ciniki_projects_projectList($ciniki) {
         . "LEFT JOIN ciniki_project_users AS u1 ON (ciniki_projects.id = u1.project_id AND u1.user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "') "
         . "LEFT JOIN ciniki_project_users AS u2 ON (ciniki_projects.id = u2.project_id && (u2.perms&0x04) = 4) "
         . "LEFT JOIN ciniki_users AS u3 ON (u2.user_id = u3.id) "
-        . "WHERE ciniki_projects.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_projects.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     if( isset($args['status']) && $args['status'] > 0 ) {
         $strsql .= "AND ciniki_projects.status = '" . ciniki_core_dbQuote($ciniki, $args['status']) . "' ";
@@ -83,7 +83,7 @@ function ciniki_projects_projectList($ciniki) {
 //      }
     }
     // Check for public/private notes, and if private make sure user created or is assigned
-    $strsql .= "AND ((ciniki_projects.perm_flags&0x01) = 0 "  // Public to business
+    $strsql .= "AND ((ciniki_projects.perm_flags&0x01) = 0 "  // Public to tenant
             // created by the user requesting the list
             . "OR ((ciniki_projects.perm_flags&0x01) = 1 AND ciniki_projects.user_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "') "
             // Assigned to the user requesting the list

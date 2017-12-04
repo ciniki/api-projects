@@ -9,7 +9,7 @@
 #
 # uuid:             The Universal Unique ID for the project, used for sync.
 #
-# business_id:      The business the project is attached to.
+# tnid:             The tenant the project is attached to.
 #
 # category:         The category for the project.
 # 
@@ -37,7 +37,7 @@
 create table ciniki_projects (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     category varchar(140) not null,
     status tinyint unsigned not null,
     perm_flags tinyint unsigned not null,
@@ -47,6 +47,6 @@ create table ciniki_projects (
     last_updated datetime not null,
     primary key (id),
     index (category),
-    index (business_id, status),
-    index uuid (business_id, uuid, last_updated)
+    index (tnid, status),
+    index uuid (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.02';

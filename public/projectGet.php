@@ -9,7 +9,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:     The ID of the business to get the ATDO for.
+// tnid:     The ID of the tenant to get the ATDO for.
 // project_id:      The ID of the project to get.
 // children:        (optional) The children flag to specify returning all child projects if specified as yes.
 // 
@@ -39,7 +39,7 @@ function ciniki_projects_projectGet($ciniki) {
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'project_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Project'), 
         'children'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'no', 'name'=>'Children Flag'),
         )); 
@@ -50,10 +50,10 @@ function ciniki_projects_projectGet($ciniki) {
     
     //  
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //  
     ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.projectGet'); 
+    $rc = ciniki_projects_checkAccess($ciniki, $args['tnid'], 'ciniki.projects.projectGet'); 
     if( $rc['stat'] != 'ok' ) { 
         return $rc;
     }   
@@ -78,7 +78,7 @@ function ciniki_projects_projectGet($ciniki) {
         . "DATE_FORMAT(CONVERT_TZ(ciniki_projects.date_added, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), '" . ciniki_core_dbQuote($ciniki, $datetime_format) . "') AS date_added, "
         . "DATE_FORMAT(CONVERT_TZ(ciniki_projects.last_updated, '+00:00', '" . ciniki_core_dbQuote($ciniki, $utc_offset) . "'), '" . ciniki_core_dbQuote($ciniki, $datetime_format) . "') AS last_updated "
         . "FROM ciniki_projects "
-        . "WHERE ciniki_projects.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_projects.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_projects.id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
         . "";
     
@@ -104,7 +104,7 @@ function ciniki_projects_projectGet($ciniki) {
     $strsql = "SELECT project_id, user_id, perms "
         . "FROM ciniki_project_users "
         . "WHERE project_id = '" . ciniki_core_dbQuote($ciniki, $args['project_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbRspQueryPlusUserIDs');
     $rc = ciniki_core_dbRspQueryPlusUserIDs($ciniki, $strsql, 'ciniki.projects', 'users', 'user', array('stat'=>'ok', 'users'=>array(), 'user_ids'=>array()));
@@ -180,7 +180,7 @@ function ciniki_projects_projectGet($ciniki) {
             $project['notes'] = array();
             $project['messages'] = array();
             ciniki_core_loadMethod($ciniki, 'ciniki', 'atdo', 'private', 'projectChildren');
-            $rc = ciniki_atdo_projectChildren($ciniki, $args['business_id'], $args['project_id'], 'open'); 
+            $rc = ciniki_atdo_projectChildren($ciniki, $args['tnid'], $args['project_id'], 'open'); 
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -206,7 +206,7 @@ function ciniki_projects_projectGet($ciniki) {
         if( isset($modules['ciniki.filedepot']) ) {
             $project['files'] = array();
             ciniki_core_loadMethod($ciniki, 'ciniki', 'filedepot', 'private', 'projectChildren');
-            $rc = ciniki_filedepot_projectChildren($ciniki, $args['business_id'], $args['project_id']);
+            $rc = ciniki_filedepot_projectChildren($ciniki, $args['tnid'], $args['project_id']);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

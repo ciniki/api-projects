@@ -1,4 +1,4 @@
 #
 #
-CREATE INDEX uuid ON ciniki_projects (business_id, uuid, last_updated);
+CREATE INDEX uuid ON ciniki_projects (tnid, uuid, last_updated);
 ALTER TABLE ciniki_projects COMMENT='v1.02';

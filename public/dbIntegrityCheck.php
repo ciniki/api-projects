@@ -16,7 +16,7 @@ function ciniki_projects_dbIntegrityCheck($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'), 
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'), 
         'fix'=>array('required'=>'no', 'default'=>'no', 'name'=>'Fix Problems'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -25,10 +25,10 @@ function ciniki_projects_dbIntegrityCheck($ciniki) {
     $args = $rc['args'];
     
     //
-    // Check access to business_id as owner, or sys admin
+    // Check access to tnid as owner, or sys admin
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'projects', 'private', 'checkAccess');
-    $rc = ciniki_projects_checkAccess($ciniki, $args['business_id'], 'ciniki.projects.dbIntegrityCheck');
+    $rc = ciniki_projects_checkAccess($ciniki, $args['tnid'], 'ciniki.projects.dbIntegrityCheck');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -42,7 +42,7 @@ function ciniki_projects_dbIntegrityCheck($ciniki) {
         //
         // Update the history for ciniki_projects
         //
-        $rc = ciniki_core_dbFixTableHistory($ciniki, 'ciniki.projects', $args['business_id'],
+        $rc = ciniki_core_dbFixTableHistory($ciniki, 'ciniki.projects', $args['tnid'],
             'ciniki_projects', 'ciniki_project_history', 
             array('uuid', 'category', 'status', 'perm_flags', 'user_id', 'name'));
         if( $rc['stat'] != 'ok' ) {
@@ -52,7 +52,7 @@ function ciniki_projects_dbIntegrityCheck($ciniki) {
         //
         // Update the history for ciniki_project_users
         //
-        $rc = ciniki_core_dbFixTableHistory($ciniki, 'ciniki.projects', $args['business_id'],
+        $rc = ciniki_core_dbFixTableHistory($ciniki, 'ciniki.projects', $args['tnid'],
             'ciniki_project_users', 'ciniki_project_history', 
             array('uuid', 'project_id', 'user_id', 'perms'));
         if( $rc['stat'] != 'ok' ) {
