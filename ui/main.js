@@ -311,7 +311,7 @@ function ciniki_projects_main() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_projects_main', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
 
@@ -444,7 +444,7 @@ function ciniki_projects_main() {
     };
 
     this.deleteProject = function() {
-        if( confirm("Are you sure you want to remove the project '" + this.edit.data.name + "'?") ) {
+        M.confirm("Are you sure you want to remove the project '" + this.edit.data.name + "'?",null,function() {
             var rsp = M.api.getJSONCb('ciniki.projects.projectDelete', 
                 {'tnid':M.curTenantID, 
                 'project_id':M.ciniki_projects_main.edit.project_id}, function(rsp) {
@@ -454,6 +454,6 @@ function ciniki_projects_main() {
                     }
                     M.ciniki_projects_main.project.close();
                 });
-        }
+        });
     };
 }
