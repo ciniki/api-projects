@@ -40,16 +40,16 @@ function ciniki_projects_main() {
         };
         this.projects.liveSearchResultValue = function(s, f, i, j, d) {
             if( j == 0 ) {
-                if( d.project.viewed == 'no' ) {
-                    return '<b>' + d.project.name + '</b>';
+                if( d.viewed == 'no' ) {
+                    return '<b>' + d.name + '</b>';
                 }
-                return d.project.name;
+                return d.name;
             }
-            if( j == 1 ) { return d.project.status_text; }
+            if( j == 1 ) { return d.pstatus_text; }
             return '';
         };
         this.projects.liveSearchResultRowFn = function(s, f, i, j, d) {
-            return 'M.ciniki_projects_main.showProject(\'M.ciniki_projects_main.showProjects(null, null);\', \'' + d.project.id + '\');'; 
+            return 'M.ciniki_projects_main.showProject(\'M.ciniki_projects_main.showProjects(null, null);\', \'' + d.id + '\');'; 
         };
 //      this.projects.liveSearchSubmitFn = function(s, search_str) {
 //          M.ciniki_atdo_main.searchProjects('M.ciniki_atdo_main.showProjects();', search_str);

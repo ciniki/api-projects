@@ -58,7 +58,8 @@ function ciniki_projects_searchNames($ciniki) {
     $strsql = "SELECT id, name, status, status AS status_text "
         . "FROM ciniki_projects "
         . "WHERE ciniki_projects.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
-        . "AND (name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+        . "AND ("
+            . "name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . ") "
         . "ORDER BY status, name ";
@@ -68,8 +69,8 @@ function ciniki_projects_searchNames($ciniki) {
         $strsql .= "LIMIT 25 ";
     }
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryTree');
-    $rc = ciniki_core_dbHashQueryTree($ciniki, $strsql, 'ciniki.projects', array(
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.projects', array(
         array('container'=>'projects', 'fname'=>'id', 'name'=>'project',
             'fields'=>array('id', 'name', 'status', 'status_text'),
             'maps'=>array('status_text'=>$status_maps)),
